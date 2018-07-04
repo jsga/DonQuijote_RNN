@@ -2,3 +2,6 @@ This repository models the text of ["El ingenioso hidalgo don Quijote de la Manc
 
 Work in progress!
 
+
+# Example
+python3 DonQuijote.py -w weights-improvement-2L-512-24-1.4408.hdf5

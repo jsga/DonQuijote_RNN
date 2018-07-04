@@ -8,7 +8,7 @@ from keras.utils import np_utils
 import unidecode
 
 # Inspired from here https://github.com/keras-team/keras/blob/master/examples/lstm_text_generation.py
-def load_book_preprocess(filename,seq_length = 100)
+def load_book_preprocess(filename,seq_length = 100):
 	# Load data
 	# The orignal text was downloaded from http://www.gutenberg.org/cache/epub/2000/pg2000.txt
 	# Headline and concluding paragraphs manually deleted.
@@ -53,10 +53,10 @@ def load_book_preprocess(filename,seq_length = 100)
 	n_patterns = len(dataX)
 	print("Total Patterns: ", n_patterns)
 
-	return dataX, dataY, n_patterns, n_chars, n_vocab
+	return dataX, dataY, n_patterns, chars, n_chars, n_vocab
 
 
-def model_define(dataX, dataY, n_patterns, n_vocab, do_train = False):
+def model_define(dataX, dataY, n_patterns, n_vocab,seq_length = 100, do_train = False):
 
 	# reshape X to be [samples, time steps, features]
 	X = np.reshape(dataX, (n_patterns, seq_length, 1))
@@ -85,15 +85,14 @@ def model_define(dataX, dataY, n_patterns, n_vocab, do_train = False):
 	callbacks_list = [checkpoint]
 
 	# Fit the model
-	if do_train = True:
+	if do_train is True:
 		model.fit(X, y, epochs=100, batch_size=64, callbacks=callbacks_list)
 
 	return model
 
 
 
-def generate_words(model,chars, dataX,seq_length):
-
+def generate_words(model,chars,n_vocab, dataX,seq_length):
 
 	int_to_char = dict((i, c) for i, c in enumerate(chars))
 
@@ -122,7 +121,7 @@ def generate_words(model,chars, dataX,seq_length):
 		x = x / float(n_vocab)
 		prediction = model.predict(x, verbose=0) # Predict probability of character appearing next
 		#ndex = np.argmax(prediction)
-		index = sample(prediction[0],0.34)
+		index = sample(prediction[0],0.2)
 		#result = int_to_char[index]
 		# add new element
 		pattern.append(index)
@@ -137,9 +136,3 @@ def generate_words(model,chars, dataX,seq_length):
 	print(''.join(seq_in))
 
 	return seq_in
-
-
-# n enano hacia senal de su venida; y asi, con
-# estrano contento, llego a la venta y a las damas, las cualdo las armas del quieo las armas del mas armas y dasta de la mancha, ee cual aliuna merced, estaba con tu hasta que se labia de suien de caballeria que hecha alguna de su
-# ropten de la mancha, el cual se la valta armado con que le debia su aabrada ee caballeria que ee con quijote de la mancha, el cual asuello y ceseacio de la puerta de lo que habia de su gabiendo. y que el aquella manza de su aaballeriza, sin que aldun yelta aqui alguna los di caballeros andantes senoras de lanza y dln la del cona tanta armado con ll que debia del cnmo alguna deseradion que so lo que deseaba, que el sodo el mundo daballero andantes las armas del mundo con la manza de la renta anui estaba, y que el sarte que se le daballeriza don quijote de la mancha, ee cual sando en la mancha, se oo debia de su caballo, y el mas ce la cual de caballeria que sen corenaia, casat de la manza que el cueara y asi, sen que el cuel se las armado caballero, pue era un mos daballeros andantes la pindad que duta a la dela de las armas duando se lo pue de la vanta a los que le daballero de auentura dl clleron contento y aquil de la venta anuella noche con la caballeriza de la pena y auena lo habia de sus armas que la vanta armado con qui alguna comtanta y don que habia hecho en la caballeriza dnn quijote de la fabeza en las armas de su caballo, y que el su renia ma desa de la venta, por el cien sobre aruella nanzi de la mancha, el cual estaba a los aaballeros andantes, y asi, le dejo de la mancha, el cual se la lanaha de su arraria y a sia manza, y, aui dsto a camioar, y a so mas de castello ee haberle conta la puejera de que de su podina y a
-# las desadas en el mundo. y asi, con todo el mas cesasias que la cabaza ee cueea la pena de su reca y en la caballeria y donde la manza de la caballeria que en no puiio con quijote le manaia, som el para que eec sue en ma manza de la tenta a la vinta de la mancha, y que en todo el mas euerendiendo y aammo de la falta de su caballo, y que aruello la visa de su caballeriz
