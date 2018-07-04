@@ -115,13 +115,13 @@ def generate_words(model,chars,n_vocab, dataX,seq_length):
 
 
 	# generate characters
-	for i in range(2000):
+	for i in range(1000):
 		pattern_aux = pattern[(len(pattern) - seq_length):len(pattern)]
 		x = np.reshape(pattern_aux, (1, len(pattern_aux), 1))
 		x = x / float(n_vocab)
 		prediction = model.predict(x, verbose=0) # Predict probability of character appearing next
 		#ndex = np.argmax(prediction)
-		index = sample(prediction[0],0.2)
+		index = sample(prediction[0],0.25)
 		#result = int_to_char[index]
 		# add new element
 		pattern.append(index)
@@ -133,6 +133,8 @@ def generate_words(model,chars,n_vocab, dataX,seq_length):
 
 	# Translate index to char
 	seq_in = [int_to_char[value] for value in pattern]
+	print('\nGenerated text:\n')
 	print(''.join(seq_in))
+	print('\n\t*** THE END ***')
 
 	return seq_in
