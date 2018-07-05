@@ -17,7 +17,7 @@ def load_book_preprocess(filename,seq_length = 100):
 	# filename = "Don_Quijote_Full.txt"
 	#filename = "Don_Quijote_1-10Chap.txt"
 
-	raw_text = open(filename).read()
+	raw_text = open(filename,encoding='utf-8').read()
 	raw_text = raw_text.lower()
 
 	# Preprocess accents (very common in Spanish) to non-accented characters.
@@ -68,9 +68,11 @@ def model_define(dataX, dataY, n_patterns, n_vocab,seq_length = 100, do_train = 
 	# define the LSTM model
 	model = Sequential()
 	model.add(LSTM(512, input_shape=(X.shape[1], X.shape[2]),return_sequences=True))
-	model.add(Dropout(0.25))
-	model.add(LSTM(256))
-	model.add(Dropout(0.25))
+	model.add(Dropout(0.5))
+	model.add(LSTM(512,return_sequences=True))
+	model.add(Dropout(0.5))
+	model.add(LSTM(512))
+	model.add(Dropout(0.5))
 	model.add(Dense(y.shape[1], activation='softmax'))
 	model.compile(loss='categorical_crossentropy', optimizer='adam')
 
@@ -80,7 +82,7 @@ def model_define(dataX, dataY, n_patterns, n_vocab,seq_length = 100, do_train = 
 	# 	yaml_file.write(model_yaml)
 
 	# ModelCheckpoint: Save weights at iterations
-	filepath="/output/weights-improvement-2L-512-{epoch:02d}-{loss:.4f}.hdf5"
+	filepath="/output/weights-improvement-3L-512-{epoch:02d}-{loss:.4f}.hdf5"
 	checkpoint = ModelCheckpoint(filepath, monitor='loss', verbose=1, save_best_only=True, mode='min')
 	callbacks_list = [checkpoint]
 
@@ -97,7 +99,7 @@ def generate_words(model,chars,n_vocab, dataX,seq_length):
 	int_to_char = dict((i, c) for i, c in enumerate(chars))
 
 	# Define sampling strategy
-	def sample(preds, temperature=0.4):
+	def sample(preds, temperature=0):
 		# helper function to sample an index from a probability array
 		preds = np.asarray(preds).astype('float64')
 		preds = np.log(preds) / temperature
