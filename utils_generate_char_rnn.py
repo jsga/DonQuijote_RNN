@@ -53,7 +53,7 @@ def load_book_preprocess(filename,seq_length = 100):
 	n_patterns = len(dataX)
 	print("Total Patterns: ", n_patterns)
 
-	return dataX, dataY, n_patterns, chars, n_chars, n_vocab
+	return dataX, dataY, n_patterns, chars, n_chars, n_vocab, raw_text
 
 
 def model_define(dataX, dataY, n_patterns, n_vocab,seq_length = 100, do_train = False):
@@ -93,21 +93,21 @@ def model_define(dataX, dataY, n_patterns, n_vocab,seq_length = 100, do_train = 
 	return model
 
 
+# Define sampling strategy
+def sample(preds, temperature=0):
+	# helper function to sample an index from a probability array
+	preds = np.asarray(preds).astype('float64')
+	preds = np.log(preds) / temperature
+	exp_preds = np.exp(preds)
+	preds = exp_preds / np.sum(exp_preds)
+	probas = np.random.multinomial(1, preds, 1)
+	return np.argmax(probas)
+
 
 def generate_words(model,chars,n_vocab, dataX,seq_length):
 
+	# backward dictionary
 	int_to_char = dict((i, c) for i, c in enumerate(chars))
-
-	# Define sampling strategy
-	def sample(preds, temperature=0):
-		# helper function to sample an index from a probability array
-		preds = np.asarray(preds).astype('float64')
-		preds = np.log(preds) / temperature
-		exp_preds = np.exp(preds)
-		preds = exp_preds / np.sum(exp_preds)
-		probas = np.random.multinomial(1, preds, 1)
-		return np.argmax(probas)
-
 
 	# pick a random seed
 	start = np.random.randint(0, len(dataX)-1)
@@ -115,26 +115,87 @@ def generate_words(model,chars,n_vocab, dataX,seq_length):
 	print("Seed:")
 	print("\"", ''.join([int_to_char[value] for value in pattern]), "\"")
 
-
 	# generate characters
 	for i in range(1000):
+		# Select latest sequence
 		pattern_aux = pattern[(len(pattern) - seq_length):len(pattern)]
 		x = np.reshape(pattern_aux, (1, len(pattern_aux), 1))
 		x = x / float(n_vocab)
 		prediction = model.predict(x, verbose=0) # Predict probability of character appearing next
-		#ndex = np.argmax(prediction)
+
+		# Sample
 		index = sample(prediction[0],0.25)
-		#result = int_to_char[index]
+
 		# add new element
 		pattern.append(index)
-		#pattern.pop(0)
-		# delete first entry
-		#pattern = pattern[1:len(pattern)]
-	print("\nDone.")
 
+	print("\nDone.")
 
 	# Translate index to char
 	seq_in = [int_to_char[value] for value in pattern]
+	print('\nGenerated text:\n')
+	print(''.join(seq_in))
+	print('\n\t*** THE END ***')
+
+	return seq_in
+
+
+def generate_words_whole(model, chars, n_vocab, dataX, seq_length,raw_text):
+
+	# Get the words fr later checking
+	text_words = raw_text.split()
+
+	# backward dictionary
+	int_to_char = dict((i, c) for i, c in enumerate(chars))
+
+	# pick a random seed
+	start = np.random.randint(0, len(dataX) - 1)
+	pattern = dataX[start]
+	print("Seed:")
+	print("\"", ''.join([int_to_char[value] for value in pattern]), "\"")
+
+	seq_in = '' # generated sequence
+
+	# generate characters
+	for i in range(50):
+
+		# indicator whether a full word has been found
+		whole_word = False
+		new_word = ""
+
+		while whole_word == False:
+
+			# Select latest sequence
+			pattern_aux = pattern[(len(pattern) - seq_length):len(pattern)]
+			x = np.reshape(pattern_aux, (1, len(pattern_aux), 1))
+			x = x / float(n_vocab)
+
+			# Predict probability of character appearing next
+			prediction = model.predict(x, verbose=0)
+			# Sample
+			index = sample(prediction[0], 0.25)
+			new_word.append(int_to_char[index])
+
+			# Check whether a blank space has been generated
+			if new_word[-1] == " ":
+				# check if word exists
+				if new_word in text_words:
+					# append new word and continue
+					seq_in.append(new_word)
+					whole_word = True
+				else:
+					# the word does not exist so re-do prediction
+					new_word = ""
+            else: # just continue with the prediction
+
+
+			# add new element
+			pattern.append(index)
+
+	print("\nDone.")
+
+	# Translate index to char
+	#seq_in = [int_to_char[value] for value in pattern]
 	print('\nGenerated text:\n')
 	print(''.join(seq_in))
 	print('\n\t*** THE END ***')
