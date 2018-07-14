@@ -6,16 +6,10 @@ from keras.layers import LSTM
 from keras.callbacks import ModelCheckpoint
 from keras.utils import np_utils
 import unidecode
+import re
 
 # Inspired from here https://github.com/keras-team/keras/blob/master/examples/lstm_text_generation.py
 def load_book_preprocess(filename,seq_length = 100):
-	# Load data
-	# The orignal text was downloaded from http://www.gutenberg.org/cache/epub/2000/pg2000.txt
-	# Headline and concluding paragraphs manually deleted.
-
-	# load ascii text and covert to lowercase
-	# filename = "Don_Quijote_Full.txt"
-	#filename = "Don_Quijote_1-10Chap.txt"
 
 	raw_text = open(filename,encoding='utf-8').read()
 	raw_text = raw_text.lower()
@@ -95,7 +89,12 @@ def model_define(dataX, dataY, n_patterns, n_vocab,seq_length = 100, do_train = 
 
 # Define sampling strategy
 def sample(preds, temperature=0):
-	# helper function to sample an index from a probability array
+	'''
+	Helper function to sample an index from a probability array
+	Lower temperature means more conservative sampling (only higher probabilities are sampled)
+	Higher temperature more diverse sampling
+	'''
+
 	preds = np.asarray(preds).astype('float64')
 	preds = np.log(preds) / temperature
 	exp_preds = np.exp(preds)
@@ -129,8 +128,6 @@ def generate_words(model,chars,n_vocab, dataX,seq_length):
 		# add new element
 		pattern.append(index)
 
-	print("\nDone.")
-
 	# Translate index to char
 	seq_in = [int_to_char[value] for value in pattern]
 	print('\nGenerated text:\n')
@@ -140,15 +137,22 @@ def generate_words(model,chars,n_vocab, dataX,seq_length):
 	return seq_in
 
 
-def generate_words_whole(model, chars, n_vocab, dataX, seq_length,raw_text):
+def generate_words_whole(model, chars, n_vocab, dataX, raw_text, seq_length):
 
-	# Get the words fr later checking
-	text_words = raw_text.split()
+	# Get the words for later checking
+	grep_seq = '; |, |\,|\n|\. |\.| |\- | \-'
+	text_words = re.split(grep_seq, raw_text)
+	# add the special split characters to the dictionary
+	text_words.append(';')
+	text_words.append(',')
+	text_words.append('.')
+	text_words.append('-')
+
 
 	# backward dictionary
 	int_to_char = dict((i, c) for i, c in enumerate(chars))
 
-	# pick a random seed
+	# pick a random seed and print it
 	start = np.random.randint(0, len(dataX) - 1)
 	pattern = dataX[start]
 	print("Seed:")
@@ -156,7 +160,7 @@ def generate_words_whole(model, chars, n_vocab, dataX, seq_length,raw_text):
 
 	seq_in = '' # generated sequence
 
-	# generate characters
+	# generate words
 	for i in range(50):
 
 		# indicator whether a full word has been found
@@ -172,30 +176,36 @@ def generate_words_whole(model, chars, n_vocab, dataX, seq_length,raw_text):
 
 			# Predict probability of character appearing next
 			prediction = model.predict(x, verbose=0)
-			# Sample
-			index = sample(prediction[0], 0.25)
-			new_word.append(int_to_char[index])
+
+			# Sample new character
+			index = sample(prediction[0], 0.5)
+			new_word += int_to_char[index]
+
+			#print("So far: '" + new_word, "' at iter" + str(i))
 
 			# Check whether a blank space has been generated
-			if new_word[-1] == " ":
-				# check if word exists
-				if new_word in text_words:
+			if (new_word[-1] == " ") & (len(new_word) > 1):
+				# check if word exists. Delete the special characters first
+				aux_word = ''.join(re.split(grep_seq, new_word)) # remove special characters
+
+				if aux_word in text_words: #
+					#print("Add: '" + aux_word , "'")
 					# append new word and continue
-					seq_in.append(new_word)
+					seq_in +=  new_word
 					whole_word = True
-				else:
-					# the word does not exist so re-do prediction
 					new_word = ""
-            else: # just continue with the prediction
+					pattern.append(index)
 
+				else: # the word does not exist so re-do prediction
+					# remove last elements from pattern
+					#print("Removed: '" + aux_word , "'")
+					pattern = pattern[ 0: (len(pattern)-len(new_word)+1)]
+					new_word = ""
 
-			# add new element
-			pattern.append(index)
-
-	print("\nDone.")
+			else: # add a new element if word is not finished
+				pattern.append(index)
 
 	# Translate index to char
-	#seq_in = [int_to_char[value] for value in pattern]
 	print('\nGenerated text:\n')
 	print(''.join(seq_in))
 	print('\n\t*** THE END ***')
