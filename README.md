@@ -13,7 +13,7 @@ python3 DonQuijote.py -w weights-improvement-3L-512-23-1.2375.hdf5
 
 An example of the output:
 
-> un punto que el lo pueda en el campo la paraba, mi las armas, y que andando tu amo de ser dellos de tu rodela, que, decia que le la sido en el mundo. no le hallara en tus armas, y asi lo que decia: di senor del puerto 
+> con todo eso, se le dejaron de ser su romance v me dejase, porque no le dejare y facilidad de su modo que de la lanza en la caballeriza, por el mesmo camino, y la donde se le habia de haber de los que el campo, porque el estaba la cabeza que le parece a le puerto y de contento, son de la primera entre algunas cosas de la venta, con tanta furia de su primer algunos que a los caballeros andantes a su lanza, y, aunque el no puede le dios te parecian y a tu parte, se dios ser puede los viera en la caballeria en la caballeria en altas partes de la mancha, 
 
 
 Generate random characters and make sure the words exist in the book:
@@ -22,7 +22,8 @@ Generate random characters and make sure the words exist in the book:
 python3 DonQuijote.py -w weights-improvement-3L-512-23-1.2375.hdf5 -o True
 ```
 
->  a aquel sobre el los dias de la mancha, don quijote de la mancha  estando en el campo; y a lo que era parte de la caballeria, la habeis de ser que le dejase de san benito que le habia dicho, de monte te puede caballero don quijote 
+>  al cual le parecieron don quijote de la mancha, en cuando le daba a le senor tio en el corral, y tio que andaba muy acerto los dos viejos, y, al caso de van manera con el de tu escudero. don quijote y mas venta a su asno, con toda su amo pasa dios de la caballeria y de al que habia leido, no habia de ser tu escudero: la suelo del camino de la venta, de que san caballo de los que le habia dejado; a este libro es este es el mismo coche, como te ve don mucho deseos de los que el caballero le hallaba; y al corral con la cabeza que aquel sabio en la gente de la lanza y tan las demas y camas de tu escudero, 
+
 
 
 # Train the model

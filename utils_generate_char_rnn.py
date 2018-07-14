@@ -115,7 +115,7 @@ def generate_words(model,chars,n_vocab, dataX,seq_length):
 	print("\"", ''.join([int_to_char[value] for value in pattern]), "\"")
 
 	# generate characters
-	for i in range(1000):
+	for i in range(3000):
 		# Select latest sequence
 		pattern_aux = pattern[(len(pattern) - seq_length):len(pattern)]
 		x = np.reshape(pattern_aux, (1, len(pattern_aux), 1))
@@ -123,7 +123,7 @@ def generate_words(model,chars,n_vocab, dataX,seq_length):
 		prediction = model.predict(x, verbose=0) # Predict probability of character appearing next
 
 		# Sample
-		index = sample(prediction[0],0.25)
+		index = sample(prediction[0],0.5)
 
 		# add new element
 		pattern.append(index)
@@ -161,7 +161,7 @@ def generate_words_whole(model, chars, n_vocab, dataX, raw_text, seq_length):
 	seq_in = '' # generated sequence
 
 	# generate words
-	for i in range(50):
+	for i in range(150):
 
 		# indicator whether a full word has been found
 		whole_word = False
@@ -178,18 +178,17 @@ def generate_words_whole(model, chars, n_vocab, dataX, raw_text, seq_length):
 			prediction = model.predict(x, verbose=0)
 
 			# Sample new character
-			index = sample(prediction[0], 0.5)
+			index = sample(prediction[0], 0.75)
 			new_word += int_to_char[index]
-
-			#print("So far: '" + new_word, "' at iter" + str(i))
 
 			# Check whether a blank space has been generated
 			if (new_word[-1] == " ") & (len(new_word) > 1):
 				# check if word exists. Delete the special characters first
 				aux_word = ''.join(re.split(grep_seq, new_word)) # remove special characters
+				print("New ord: '" + aux_word, "' at iter" + str(i))
 
 				if aux_word in text_words: #
-					#print("Add: '" + aux_word , "'")
+					print("Add")
 					# append new word and continue
 					seq_in +=  new_word
 					whole_word = True
@@ -198,8 +197,7 @@ def generate_words_whole(model, chars, n_vocab, dataX, raw_text, seq_length):
 
 				else: # the word does not exist so re-do prediction
 					# remove last elements from pattern
-					#print("Removed: '" + aux_word , "'")
-					pattern = pattern[ 0: (len(pattern)-len(new_word)+1)]
+					pattern = pattern[ (len(pattern) - seq_length - len(new_word) + 1):(len(pattern)- len(new_word) + 1)]
 					new_word = ""
 
 			else: # add a new element if word is not finished
