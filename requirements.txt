@@ -186,7 +186,7 @@ QtAwesome==0.4.4
 qtconsole==4.3.1
 QtPy==1.4.0
 redis==2.10.6
-requests==2.18.4
+requests==2.20.0
 requirements==0.1
 rope==0.10.7
 rsa==3.4.2
