@@ -230,7 +230,7 @@ urllib3==1.22
 virtualenv==15.2.0
 virtualenv-clone==0.3.0
 virtualenvwrapper==4.8.2
-waitress==1.1.0
+waitress==1.4.1
 wcwidth==0.1.7
 webencodings==0.5.1
 WebOb==1.8.1
